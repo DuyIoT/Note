@@ -6,7 +6,7 @@
     <dimen name="dm15dp">15dp</dimen>
     <dimen name="dm20dp">20dp</dimen>
     <dimen name="dmtext">20sp</dimen>
-    <dimen name="dm200dp">200dp</dimen>
-    <dimen name="dm250dp">250dp</dimen>
+    <dimen name="dm180dp">180dp</dimen>
+    <dimen name="dm220dp">220dp</dimen>
     <dimen name="text10">10sp</dimen>
 </resources>

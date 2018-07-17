@@ -6,4 +6,5 @@
     <color name="backgroundBar">#008942</color>
     <color name="itemTint">#d62809</color>
     <color name="black">#000</color>
+    <color name="bgMain">#b4d2c2</color>
 </resources>

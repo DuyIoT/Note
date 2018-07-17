@@ -88,12 +88,12 @@ public class Note implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(this.id);
         dest.writeString(this.title);
         dest.writeString(this.content);
-        dest.writeInt(this.id);
         dest.writeString(this.date);
+        dest.writeString(this.image);
         dest.writeString(this.time);
-        dest.writeString(String.valueOf(this.image));
         dest.writeString(this.alaramDate);
         dest.writeString(this.alaramTime);
     }
@@ -106,8 +106,8 @@ public class Note implements Parcelable {
         this.title = in.readString();
         this.content = in.readString();
         this.date = in.readString();
-        this.time = in.readString();
         this.image = in.readString();
+        this.time = in.readString();
         this.alaramDate = in.readString();
         this.alaramTime = in.readString();
     }

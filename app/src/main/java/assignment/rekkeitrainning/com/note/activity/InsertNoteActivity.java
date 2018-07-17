@@ -16,16 +16,31 @@ import android.widget.Toast;
 import java.lang.reflect.Field;
 
 import assignment.rekkeitrainning.com.note.R;
+import assignment.rekkeitrainning.com.note.constants.Constants;
+import assignment.rekkeitrainning.com.note.model.Note;
 
 public class InsertNoteActivity extends AppCompatActivity {
     BottomNavigationView btNavigation;
     Toolbar mToolbar;
+    Note mNote = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_insert_note);
         initView();
+        getData();
     }
+
+    private void getData() {
+        Bundle mBundle = getIntent().getExtras();
+        if (mBundle != null){
+            mNote = (Note) mBundle.getParcelable(Constants.KEY_OBJECT_NOTE);
+            Log.d("TAG", mNote.getTitle() + "AAA" +  mNote.getId());
+        } else {
+            Toast.makeText(this, "Bạn add", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     private void initView() {
         btNavigation = (BottomNavigationView) findViewById(R.id.bottom_navigation);
         disableShiftMode(btNavigation);

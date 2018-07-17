@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +49,7 @@ public class DBNote extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(CREATE_TABLE);
+        Log.d("CREAT", CREATE_TABLE);
     }
 
     @Override
@@ -66,7 +68,6 @@ public class DBNote extends SQLiteOpenHelper {
         values.put(COLUMN_ALARAMDATE, note.getAlaramDate());
         values.put(COLUMN_ALARAMTIME, note.getAlaramTime());
         long id = db.insert(TABLE_NAME, null, values);
-
         db.close();
         return id;
     }
