@@ -11,7 +11,7 @@
 
         <item
             android:id="@+id/menu_change"
-            android:icon="@drawable/change"
+            android:icon="@drawable/exchange"
             android:orderInCategory="200"
             app:showAsAction="always"
             android:title="Change" />

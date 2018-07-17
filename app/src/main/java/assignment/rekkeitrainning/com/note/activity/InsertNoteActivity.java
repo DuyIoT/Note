@@ -1,58 +1,133 @@
 package assignment.rekkeitrainning.com.note.activity;
 
 import android.annotation.SuppressLint;
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.design.internal.BottomNavigationItemView;
 import android.support.design.internal.BottomNavigationMenuView;
 import android.support.design.widget.BottomNavigationView;
+import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.DatePicker;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
+import java.io.ByteArrayOutputStream;
 import java.lang.reflect.Field;
+import java.sql.Time;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Timer;
 
 import assignment.rekkeitrainning.com.note.R;
 import assignment.rekkeitrainning.com.note.constants.Constants;
+import assignment.rekkeitrainning.com.note.db.DBNote;
 import assignment.rekkeitrainning.com.note.model.Note;
 
-public class InsertNoteActivity extends AppCompatActivity {
+public class InsertNoteActivity extends AppCompatActivity implements View.OnClickListener{
+    DBNote mDBNote;
+    ImageView img_note;
+    TextView tv_datetimenow;
+    TextInputEditText et_title;
+    TextInputEditText et_content;
+    ImageButton ibtn_calendar;
+    ImageButton ibtn_clock;
+    TextView tv_calendar;
+    TextView tv_clock;
+    DatePickerDialog mDatePicker;
     BottomNavigationView btNavigation;
     Toolbar mToolbar;
     Note mNote = null;
+    String date_now;
+    String time_now;
+    Calendar mCalendar;
+    int year;
+    int month;
+    int dayOfMonth;
+    int hour;
+    int minute;
+    boolean isInsert = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_insert_note);
         initView();
         getData();
+        initListener();
+        getTimeNow();
     }
 
     private void getData() {
         Bundle mBundle = getIntent().getExtras();
         if (mBundle != null){
             mNote = (Note) mBundle.getParcelable(Constants.KEY_OBJECT_NOTE);
-            Log.d("TAG", mNote.getTitle() + "AAA" +  mNote.getId());
+            et_title.setText(mNote.getTitle());
+            et_content.setText(mNote.getContent());
+            tv_calendar.setText(mNote.getAlaramDate());
+            tv_clock.setText(mNote.getAlaramTime());
+            isInsert = false;
         } else {
-            Toast.makeText(this, "Bạn add", Toast.LENGTH_SHORT).show();
+            isInsert = true;
         }
     }
 
     private void initView() {
+        mDBNote = new DBNote(this);
         btNavigation = (BottomNavigationView) findViewById(R.id.bottom_navigation);
         disableShiftMode(btNavigation);
         mToolbar = findViewById(R.id.toolbarMain);
         setSupportActionBar(mToolbar);
+        tv_datetimenow = findViewById(R.id.tvDatetime);
+        tv_calendar = findViewById(R.id.tvAlaramDate);
+        tv_clock = findViewById(R.id.tvAlaramTime);
+        ibtn_calendar = findViewById(R.id.ibnAlaramDate);
+        ibtn_clock = findViewById(R.id.ibtnAlaramTime);
+        et_content = findViewById(R.id.etContent);
+        et_title = findViewById(R.id.etTitle);
+        img_note = findViewById(R.id.imgNote);
+    }
+    private void getTimeNow(){
+        mCalendar = Calendar.getInstance();
+        date_now = mCalendar.get(Calendar.DAY_OF_MONTH) + "/" + (mCalendar.get(Calendar.MONTH) + 1) + "/" + mCalendar.get(Calendar.YEAR);
+        time_now = mCalendar.get(Calendar.HOUR) + ":" + mCalendar.get(Calendar.MINUTE);
+        tv_datetimenow.setText(date_now + " " + time_now);
     }
     private void initListener() {
         btNavigation.setOnNavigationItemSelectedListener(this::onNavigationItemSelected);
+        ibtn_calendar.setOnClickListener(this);
+        ibtn_clock.setOnClickListener(this);
     }
     private boolean onNavigationItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.action_add:
+            case R.id.action_delete:
+                if (mNote != null){
+                    mDBNote.deleteNote(mNote);
+                    Intent mIntent = new Intent(InsertNoteActivity.this, MainActivity.class);
+                    startActivity(mIntent);
+                } else {
+                    Toast.makeText(this, "Bạn không xóa được", Toast.LENGTH_SHORT).show();
+                }
+                break;
+            case R.id.action_share:
+                break;
+            case R.id.action_back:
+                Intent mIntent = new Intent(InsertNoteActivity.this, MainActivity.class);
+                startActivity(mIntent);
+                break;
+            case R.id.action_right:
                 break;
 
         }
@@ -60,7 +135,6 @@ public class InsertNoteActivity extends AppCompatActivity {
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_toolbar, menu);
         return true;
     }
@@ -70,7 +144,32 @@ public class InsertNoteActivity extends AppCompatActivity {
         int id = item.getItemId();
         switch (id){
             case R.id.menu_camera:
-                Toast.makeText(this,"HJJ", Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.menu_change:
+                break;
+            case R.id.menu_choose:
+                if (isInsert){
+                    Note mNote = new Note();
+                    mNote.setTitle(et_title.getText().toString());
+                    mNote.setContent(et_content.getText().toString());
+                    mNote.setDate(date_now);
+                    mNote.setTime(time_now);
+                    mNote.setAlaramDate(tv_calendar.getText().toString());
+                    mNote.setAlaramTime(tv_clock.getText().toString());
+                    long insert = mDBNote.insertNote(mNote);
+                    Log.d("TAG", insert + "AAAAAAAAAA");
+                } else {
+                    mNote.setTitle(et_title.getText().toString());
+                    mNote.setContent(et_content.getText().toString());
+                    mNote.setDate(date_now);
+                    mNote.setTime(time_now);
+                    mNote.setAlaramDate(tv_calendar.getText().toString());
+                    mNote.setAlaramTime(tv_clock.getText().toString());
+                    int update = mDBNote.updateNote(mNote);
+                    Log.d("TAG", update + "AAAAAAAAAAA");
+                }
+                Intent mIntent = new Intent(InsertNoteActivity.this, MainActivity.class);
+                startActivity(mIntent);
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -94,6 +193,75 @@ public class InsertNoteActivity extends AppCompatActivity {
             Log.e("TAG", "Unable to get shift mode field");
         } catch (IllegalAccessException e) {
             Log.e("TAG", "Unable to change value of shift mode");
+        }
+    }
+    public void showDatePickerDialog() {
+        mCalendar = Calendar.getInstance();
+        year = mCalendar.get(Calendar.YEAR);
+        month = mCalendar.get(Calendar.MONTH);
+        dayOfMonth =  mCalendar.get(Calendar.DAY_OF_MONTH);
+        mDatePicker = new DatePickerDialog(InsertNoteActivity.this,
+                new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker datePicker, int year, int month, int day) {
+                        tv_calendar.setText(day + "/" + (month + 1) + "/" + year);
+                    }
+                }, year, month, dayOfMonth);
+        mDatePicker.getDatePicker().setMinDate(System.currentTimeMillis());
+        mDatePicker.show();
+
+    }
+    @Override
+    public void onClick(View v) {
+        int id = v.getId();
+        switch (id){
+            case R.id.ibtnAlaramTime:
+                showTimePickerDialog();
+                break;
+            case R.id.ibnAlaramDate:
+                showDatePickerDialog();
+                break;
+        }
+    }
+
+    private void showTimePickerDialog() {
+        mCalendar = Calendar.getInstance();
+        hour = mCalendar.get(Calendar.HOUR_OF_DAY);
+        minute = mCalendar.get(Calendar.MINUTE);
+        TimePickerDialog mTimePicker;
+        mTimePicker = new TimePickerDialog(InsertNoteActivity.this, new TimePickerDialog.OnTimeSetListener() {
+            @Override
+            public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
+                tv_clock.setText( selectedHour + ":" + selectedMinute);
+            }
+        }, hour, minute, true);//Yes 24 hour time
+        mTimePicker.setTitle("Select Time");
+        mTimePicker.show();
+    }
+    public static String BitmapToString(Bitmap bitmap) {
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
+            byte[] b = baos.toByteArray();
+            String temp = Base64.encodeToString(b, Base64.DEFAULT);
+            return temp;
+        } catch (NullPointerException e) {
+            return null;
+        } catch (OutOfMemoryError e) {
+            return null;
+        }
+    }
+
+    public static Bitmap StringToBitmap(String encodedString) {
+        try {
+            byte[] encodeByte = Base64.decode(encodedString, Base64.DEFAULT);
+            Bitmap bitmap = BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.length);
+            return bitmap;
+        } catch (NullPointerException e) {
+            e.getMessage();
+            return null;
+        } catch (OutOfMemoryError e) {
+            return null;
         }
     }
 }

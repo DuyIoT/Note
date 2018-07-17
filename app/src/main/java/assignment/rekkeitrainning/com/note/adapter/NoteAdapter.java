@@ -6,6 +6,7 @@ import android.media.Image;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -49,7 +50,7 @@ public class NoteAdapter extends  RecyclerView.Adapter<NoteAdapter.NoteViewHolde
         holder.tv_content.setText(mNote.getContent());
         holder.tv_date.setText(mNote.getDate());
         holder.tv_time.setText(mNote.getTime());
-        if (mNote.getAlaramDate() != null || mNote.getAlaramTime() != null){
+        if (!TextUtils.isEmpty(mNote.getAlaramDate()) && !TextUtils.isEmpty(mNote.getAlaramTime())){
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                 holder.img_clock.setBackground(mContext.getResources().getDrawable(R.drawable.clock, mContext.getResources().newTheme()));
             } else {

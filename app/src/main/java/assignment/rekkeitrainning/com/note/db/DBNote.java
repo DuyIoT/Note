@@ -19,9 +19,7 @@ import assignment.rekkeitrainning.com.note.model.Note;
 public class DBNote extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "notes_db";
-
     public static final String TABLE_NAME = "notes";
-
     public static final String COLUMN_ID = "id";
     public static final String COLUMN_TITLE = "title";
     public static final String COLUMN_CONTENT = "content";
@@ -49,7 +47,6 @@ public class DBNote extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(CREATE_TABLE);
-        Log.d("CREAT", CREATE_TABLE);
     }
 
     @Override

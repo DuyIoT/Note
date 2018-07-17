@@ -75,7 +75,6 @@ public class MainActivity extends AppCompatActivity implements NoteAdapter.ItemC
         setSupportActionBar(mToolbar);
         mListNote = new ArrayList<>();
         mDbNote = new DBNote(this);
-        bindData();
         mListNote = mDbNote.getAllNotes();
         rc_note.setLayoutManager(new GridLayoutManager(this, 2));
         mNoteAdapter = new NoteAdapter(this);
@@ -117,7 +116,6 @@ public class MainActivity extends AppCompatActivity implements NoteAdapter.ItemC
         mNote.setAlaramTime(mListNote.get(position).getAlaramTime());
         mNote.setAlaramDate(mListNote.get(position).getAlaramDate());
         mNote.setImage(mListNote.get(position).getImage());
-        Log.d("A", mNote.getTitle() + "AAAA" +mNote.getId() + mNote.getContent() + "AAAAAAAAA");
         Bundle mBundle = new Bundle();
         mBundle.putParcelable(Constants.KEY_OBJECT_NOTE,mNote);
         Intent mIntent = new Intent(MainActivity.this, InsertNoteActivity.class);
