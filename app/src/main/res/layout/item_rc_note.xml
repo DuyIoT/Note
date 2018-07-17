@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="@dimen/dm200dp"
+    android:layout_height="@dimen/dm250dp"
+    android:layout_margin="@dimen/dm10dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:cardCornerRadius="@dimen/dm10dp">
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+    <TextView
+        android:layout_marginLeft="@dimen/dm5dp"
+        android:layout_alignParentLeft="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:maxLines="1"
+        android:textStyle="bold"
+        android:id="@+id/tvTitle"
+        android:maxLength="15"
+        android:text="Đây là tiêu đề"
+        android:textSize="@dimen/dmtext"/>
+    <ImageView
+        android:layout_margin="@dimen/dm5dp"
+        android:id="@+id/imClock"
+        android:layout_alignParentRight="true"
+        android:layout_width="@dimen/dm20dp"
+        android:layout_height="@dimen/dm20dp"
+        android:src="@drawable/clock"/>
+    <View
+        android:id="@+id/vView"
+        android:layout_margin="@dimen/dm10dp"
+        android:layout_below="@+id/imClock"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/black">
+    </View>
+    <TextView
+        android:text="Đây là nội dung"
+        android:id="@+id/tvContent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/vView"
+        android:lines="10"/>
+    <TextView
+        android:layout_margin="@dimen/dm5dp"
+        android:id="@+id/tvTime"
+        android:text="9:00"
+        android:textSize="@dimen/text10"
+        android:layout_alignParentRight="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"/>
+    <TextView
+        android:id="@+id/tvDate"
+        android:text="17/07/2018"
+        android:layout_margin="@dimen/dm5dp"
+        android:layout_alignParentLeft="true"
+        android:textSize="@dimen/text10"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"/>
+</RelativeLayout>
+</android.support.v7.widget.CardView>

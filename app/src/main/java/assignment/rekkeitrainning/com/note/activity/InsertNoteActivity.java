@@ -9,21 +9,28 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import java.lang.reflect.Field;
 
 import assignment.rekkeitrainning.com.note.R;
 
-public class MainActivity extends AppCompatActivity {
+public class InsertNoteActivity extends AppCompatActivity {
     BottomNavigationView btNavigation;
     Toolbar mToolbar;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_insert_note);
         initView();
-        initListener();
+    }
+    private void initView() {
+        btNavigation = (BottomNavigationView) findViewById(R.id.bottom_navigation);
+        disableShiftMode(btNavigation);
+        mToolbar = findViewById(R.id.toolbarMain);
+        setSupportActionBar(mToolbar);
     }
     private void initListener() {
         btNavigation.setOnNavigationItemSelectedListener(this::onNavigationItemSelected);
@@ -31,18 +38,27 @@ public class MainActivity extends AppCompatActivity {
     private boolean onNavigationItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_add:
-                Intent mIntent = new Intent(MainActivity.this, InsertNoteActivity.class);
-                startActivity(mIntent);
                 break;
 
         }
         return true;
     }
-    private void initView() {
-        btNavigation = (BottomNavigationView) findViewById(R.id.bottom_navigation);
-        disableShiftMode(btNavigation);
-        mToolbar = findViewById(R.id.toolbarMain);
-        setSupportActionBar(mToolbar);
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_toolbar, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        switch (id){
+            case R.id.menu_camera:
+                Toast.makeText(this,"HJJ", Toast.LENGTH_SHORT).show();
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @SuppressLint("RestrictedApi")
