@@ -12,6 +12,8 @@ import java.io.ByteArrayOutputStream;
 
 public class Constants {
     public static String KEY_OBJECT_NOTE = "key_obj_note";
+    public static String KEY_PREFERENCES_COLOR = "key_preferences_color";
+    public static String KEY_COLOR = "key_color";
     public static String BitmapToString(Bitmap bitmap) {
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();

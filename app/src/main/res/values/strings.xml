@@ -5,4 +5,5 @@
     <string name="insertpic">Insert Picture</string>
     <string name="takephoto">Take Photo</string>
     <string name="choosephoto">Choose Photo</string>
+    <string name="choosebackground">Choose Color Background</string>
 </resources>

@@ -8,4 +8,7 @@
     <color name="black">#000</color>
     <color name="bgMain">#b4d2c2</color>
     <color name="insertpic">#02cebd</color>
+    <color name="bgMain1">#264d00</color>
+    <color name="bgMain2">#be91a5</color>
+    <color name="bgMain3">#7a69a3</color>
 </resources>

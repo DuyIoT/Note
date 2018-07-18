@@ -53,6 +53,7 @@ public class MainActivity extends AppCompatActivity implements NoteAdapter.ItemC
         switch (item.getItemId()) {
             case R.id.action_add:
                 Intent mIntent = new Intent(MainActivity.this, InsertNoteActivity.class);
+                overridePendingTransition(R.anim.anim_fadein, R.anim.anim_fadeout);
                 startActivity(mIntent);
                 break;
 
@@ -74,6 +75,7 @@ public class MainActivity extends AppCompatActivity implements NoteAdapter.ItemC
         mNoteAdapter.setmListNote(mListNote);
         mNoteAdapter.setOnItemClickListener(this);
         rc_note.setAdapter(mNoteAdapter);
+        getSupportActionBar().setTitle("");
 
     }
 
@@ -113,6 +115,7 @@ public class MainActivity extends AppCompatActivity implements NoteAdapter.ItemC
         mBundle.putParcelable(Constants.KEY_OBJECT_NOTE,mNote);
         Intent mIntent = new Intent(MainActivity.this, InsertNoteActivity.class);
         mIntent.putExtras(mBundle);
+        overridePendingTransition(R.anim.anim_fadein, R.anim.anim_fadeout);
         startActivity(mIntent);
     }
     private void checkAndRequestPermissions() {
