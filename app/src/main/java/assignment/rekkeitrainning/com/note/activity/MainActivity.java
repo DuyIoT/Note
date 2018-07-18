@@ -59,13 +59,6 @@ public class MainActivity extends AppCompatActivity implements NoteAdapter.ItemC
         }
         return true;
     }
-    private void bindData(){
-        Note mNote = new Note();
-        mNote.setContent("AAAAAAAAAAAAAAAAAA");
-        mNote.setTitle("BBBBBBBBBBBBBBBBB");
-        long mSuccess = mDbNote.insertNote(mNote);
-        Log.d("INSERT", mSuccess + "BBBBBBBBBBBBBBB");
-    }
 
     private void initView() {
         rc_note = findViewById(R.id.rcNote);
@@ -125,7 +118,8 @@ public class MainActivity extends AppCompatActivity implements NoteAdapter.ItemC
     private void checkAndRequestPermissions() {
         String[] permissions = new String[]{
                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.READ_EXTERNAL_STORAGE
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.CAMERA
         };
         List<String> listPermissionsNeeded = new ArrayList<>();
         for (String permission : permissions) {

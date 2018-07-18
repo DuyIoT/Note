@@ -9,4 +9,7 @@
     <dimen name="dm180dp">180dp</dimen>
     <dimen name="dm220dp">220dp</dimen>
     <dimen name="text10">10sp</dimen>
+    <dimen name="insert">30sp</dimen>
+    <dimen name="dm50dp">50dp</dimen>
+    <dimen name="dm25sp">25sp</dimen>
 </resources>

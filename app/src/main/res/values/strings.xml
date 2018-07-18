@@ -2,4 +2,7 @@
     <string name="app_name">Note</string>
     <string name="title">Title</string>
     <string name="content">Content</string>
+    <string name="insertpic">Insert Picture</string>
+    <string name="takephoto">Take Photo</string>
+    <string name="choosephoto">Choose Photo</string>
 </resources>

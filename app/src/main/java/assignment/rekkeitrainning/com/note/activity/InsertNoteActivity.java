@@ -2,10 +2,14 @@ package assignment.rekkeitrainning.com.note.activity;
 
 import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
+import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.provider.MediaStore;
 import android.support.design.internal.BottomNavigationItemView;
 import android.support.design.internal.BottomNavigationMenuView;
 import android.support.design.widget.BottomNavigationView;
@@ -18,14 +22,19 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.DatePicker;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.sql.Time;
 import java.util.Calendar;
@@ -38,6 +47,8 @@ import assignment.rekkeitrainning.com.note.db.DBNote;
 import assignment.rekkeitrainning.com.note.model.Note;
 
 public class InsertNoteActivity extends AppCompatActivity implements View.OnClickListener{
+    final int RESULT_LOAD_IMAGE = 1;
+    final  int RESULT_LOAD_CAMERA = 2;
     DBNote mDBNote;
     ImageView img_note;
     TextView tv_datetimenow;
@@ -60,6 +71,8 @@ public class InsertNoteActivity extends AppCompatActivity implements View.OnClic
     int hour;
     int minute;
     boolean isInsert = false;
+    Bitmap bmpImage;
+    String url_image;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -78,6 +91,8 @@ public class InsertNoteActivity extends AppCompatActivity implements View.OnClic
             et_content.setText(mNote.getContent());
             tv_calendar.setText(mNote.getAlaramDate());
             tv_clock.setText(mNote.getAlaramTime());
+            img_note.setImageBitmap(Constants.StringToBitmap(mNote.getImage()));
+            url_image = mNote.getImage();
             isInsert = false;
         } else {
             isInsert = true;
@@ -144,6 +159,7 @@ public class InsertNoteActivity extends AppCompatActivity implements View.OnClic
         int id = item.getItemId();
         switch (id){
             case R.id.menu_camera:
+                showDialogChooseImage();
                 break;
             case R.id.menu_change:
                 break;
@@ -154,6 +170,7 @@ public class InsertNoteActivity extends AppCompatActivity implements View.OnClic
                     mNote.setContent(et_content.getText().toString());
                     mNote.setDate(date_now);
                     mNote.setTime(time_now);
+                    mNote.setImage(url_image);
                     mNote.setAlaramDate(tv_calendar.getText().toString());
                     mNote.setAlaramTime(tv_clock.getText().toString());
                     long insert = mDBNote.insertNote(mNote);
@@ -163,6 +180,7 @@ public class InsertNoteActivity extends AppCompatActivity implements View.OnClic
                     mNote.setContent(et_content.getText().toString());
                     mNote.setDate(date_now);
                     mNote.setTime(time_now);
+                    mNote.setImage(url_image);
                     mNote.setAlaramDate(tv_calendar.getText().toString());
                     mNote.setAlaramTime(tv_clock.getText().toString());
                     int update = mDBNote.updateNote(mNote);
@@ -173,6 +191,68 @@ public class InsertNoteActivity extends AppCompatActivity implements View.OnClic
                 break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void showDialogChooseImage() {
+        Dialog mDialog = new Dialog(this);
+        mDialog.setContentView(R.layout.dialog_picture);
+        LinearLayout ln_takephoto = mDialog.findViewById(R.id.lnTakephoto);
+        LinearLayout ln_choosephoto = mDialog.findViewById(R.id.lnChoosephoto);
+        ln_choosephoto.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getImageFromAlbum();
+                mDialog.dismiss();
+            }
+        });
+        ln_takephoto.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getImageFromCamera();
+                mDialog.dismiss();
+            }
+        });
+        WindowManager.LayoutParams lWindowParams = new WindowManager.LayoutParams();
+        lWindowParams.copyFrom(mDialog.getWindow().getAttributes());
+        lWindowParams.width = WindowManager.LayoutParams.MATCH_PARENT;
+        lWindowParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        mDialog.show();
+        mDialog.getWindow().setAttributes(lWindowParams);
+    }
+
+    private void getImageFromCamera() {
+        Intent photoCaptureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        startActivityForResult(photoCaptureIntent, RESULT_LOAD_CAMERA);
+    }
+
+    private void getImageFromAlbum() {
+        Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+        photoPickerIntent.setType("image/*");
+        startActivityForResult(photoPickerIntent, RESULT_LOAD_IMAGE);
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            if (requestCode == RESULT_LOAD_IMAGE){
+                try {
+                    final Uri imageUri = data.getData();
+                    final InputStream imageStream = getContentResolver().openInputStream(imageUri);
+                    final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
+                    img_note.setImageBitmap(selectedImage);
+                    url_image = Constants.BitmapToString(selectedImage);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                    Toast.makeText(InsertNoteActivity.this, "Something went wrong", Toast.LENGTH_SHORT).show();
+                }
+            } else if (requestCode == RESULT_LOAD_CAMERA){
+                bmpImage = (Bitmap)data.getExtras().get("data");
+                img_note.setImageBitmap(bmpImage);
+                url_image = Constants.BitmapToString(bmpImage);
+            }
+        }else {
+            Toast.makeText(InsertNoteActivity.this, "You haven't picked Image",Toast.LENGTH_SHORT).show();
+        }
     }
 
     @SuppressLint("RestrictedApi")
@@ -237,31 +317,5 @@ public class InsertNoteActivity extends AppCompatActivity implements View.OnClic
         }, hour, minute, true);//Yes 24 hour time
         mTimePicker.setTitle("Select Time");
         mTimePicker.show();
-    }
-    public static String BitmapToString(Bitmap bitmap) {
-        try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
-            byte[] b = baos.toByteArray();
-            String temp = Base64.encodeToString(b, Base64.DEFAULT);
-            return temp;
-        } catch (NullPointerException e) {
-            return null;
-        } catch (OutOfMemoryError e) {
-            return null;
-        }
-    }
-
-    public static Bitmap StringToBitmap(String encodedString) {
-        try {
-            byte[] encodeByte = Base64.decode(encodedString, Base64.DEFAULT);
-            Bitmap bitmap = BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.length);
-            return bitmap;
-        } catch (NullPointerException e) {
-            e.getMessage();
-            return null;
-        } catch (OutOfMemoryError e) {
-            return null;
-        }
     }
 }
