@@ -3,9 +3,16 @@ package assignment.rekkeitrainning.com.note.activity;
 import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.app.PendingIntent;
 import android.app.TimePickerDialog;
+import android.content.ComponentName;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.content.pm.Signature;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -19,6 +26,7 @@ import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
@@ -40,15 +48,21 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.Time;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Timer;
 
 import assignment.rekkeitrainning.com.note.R;
 import assignment.rekkeitrainning.com.note.constants.Constants;
 import assignment.rekkeitrainning.com.note.db.DBNote;
 import assignment.rekkeitrainning.com.note.model.Note;
+import assignment.rekkeitrainning.com.note.notification.SetupNotification;
 
 public class InsertNoteActivity extends AppCompatActivity implements View.OnClickListener {
     final int RESULT_LOAD_IMAGE = 1;
@@ -78,6 +92,9 @@ public class InsertNoteActivity extends AppCompatActivity implements View.OnClic
     boolean isInsert = false;
     Bitmap bmpImage;
     String url_image;
+    MenuItem mMenuNewNote;
+    String timeAlaram = "";
+    SetupNotification mSetupNotification;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,8 +118,10 @@ public class InsertNoteActivity extends AppCompatActivity implements View.OnClic
             img_note.setImageBitmap(Constants.StringToBitmap(mNote.getImage()));
             url_image = mNote.getImage();
             isInsert = false;
+            btNavigation.setVisibility(View.VISIBLE);
         } else {
             isInsert = true;
+            btNavigation.setVisibility(View.INVISIBLE);
         }
     }
 
@@ -122,12 +141,14 @@ public class InsertNoteActivity extends AppCompatActivity implements View.OnClic
         et_title = findViewById(R.id.etTitle);
         img_note = findViewById(R.id.imgNote);
         rlt_insert = findViewById(R.id.rltInsert);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        mSetupNotification = new SetupNotification(this);
     }
 
     private void getTimeNow() {
         mCalendar = Calendar.getInstance();
         date_now = mCalendar.get(Calendar.DAY_OF_MONTH) + "/" + (mCalendar.get(Calendar.MONTH) + 1) + "/" + mCalendar.get(Calendar.YEAR);
-        time_now = mCalendar.get(Calendar.HOUR) + ":" + mCalendar.get(Calendar.MINUTE);
+        time_now = mCalendar.get(Calendar.HOUR_OF_DAY) + ":" + mCalendar.get(Calendar.MINUTE);
         tv_datetimenow.setText(date_now + " " + time_now);
     }
 
@@ -142,6 +163,8 @@ public class InsertNoteActivity extends AppCompatActivity implements View.OnClic
             case R.id.action_delete:
                 if (mNote != null) {
                     mDBNote.deleteNote(mNote);
+                    mSetupNotification.cancleAlaramManager(mNote);
+                    mSetupNotification.cancleNotification(mNote);
                     Intent mIntent = new Intent(InsertNoteActivity.this, MainActivity.class);
                     startActivity(mIntent);
                 } else {
@@ -149,6 +172,7 @@ public class InsertNoteActivity extends AppCompatActivity implements View.OnClic
                 }
                 break;
             case R.id.action_share:
+                setActionShare();
                 break;
             case R.id.action_back:
                 Intent mIntent = new Intent(InsertNoteActivity.this, MainActivity.class);
@@ -156,14 +180,43 @@ public class InsertNoteActivity extends AppCompatActivity implements View.OnClic
                 break;
             case R.id.action_right:
                 break;
-
         }
         return true;
+    }
+
+    private void setActionShare() {
+        Intent mIntentShare = new Intent(Intent.ACTION_SEND);
+        mIntentShare.setType("text/plain");
+        mIntentShare.putExtra(Intent.EXTRA_SUBJECT, mNote.getTitle());
+        mIntentShare.putExtra(Intent.EXTRA_TEXT, mNote.getContent());
+        mIntentShare.putExtra(Intent.EXTRA_STREAM, Constants.StringToBitmap(mNote.getImage()));
+        PackageManager mPackageManager = getPackageManager();
+        List<ResolveInfo> mListActivity = mPackageManager.queryIntentActivities(mIntentShare, 0);
+        for (ResolveInfo app : mListActivity) {
+            if ((app.activityInfo.name).startsWith("com.facebook.katana") ||
+                    (app.activityInfo.name).contains("android.gm") ||
+                    (app.activityInfo.name).equals("com.twitter.android.PostActivity") ||
+                    (app.activityInfo.name).contains("com.whatsapp")) {
+                ActivityInfo activityInfo = app.activityInfo;
+                ComponentName componentName = new ComponentName(activityInfo.applicationInfo.packageName, activityInfo.name);
+                mIntentShare.addCategory(Intent.CATEGORY_LAUNCHER);
+                mIntentShare.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+                mIntentShare.setComponent(componentName);
+                startActivity(mIntentShare);
+                break;
+            }
+        }
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_toolbar, menu);
+        mMenuNewNote = menu.findItem(R.id.menu_new);
+        if (mNote != null) {
+            mMenuNewNote.setVisible(true);
+        } else {
+            mMenuNewNote.setVisible(false);
+        }
         return true;
     }
 
@@ -178,33 +231,71 @@ public class InsertNoteActivity extends AppCompatActivity implements View.OnClic
                 showDialogChooseColor();
                 break;
             case R.id.menu_choose:
-                if (isInsert) {
-                    Note mNote = new Note();
-                    mNote.setTitle(et_title.getText().toString());
-                    mNote.setContent(et_content.getText().toString());
-                    mNote.setDate(date_now);
-                    mNote.setTime(time_now);
-                    mNote.setImage(url_image);
-                    mNote.setAlaramDate(tv_calendar.getText().toString());
-                    mNote.setAlaramTime(tv_clock.getText().toString());
-                    long insert = mDBNote.insertNote(mNote);
-                    Log.d("TAG", insert + "AAAAAAAAAA");
-                } else {
-                    mNote.setTitle(et_title.getText().toString());
-                    mNote.setContent(et_content.getText().toString());
-                    mNote.setDate(date_now);
-                    mNote.setTime(time_now);
-                    mNote.setImage(url_image);
-                    mNote.setAlaramDate(tv_calendar.getText().toString());
-                    mNote.setAlaramTime(tv_clock.getText().toString());
-                    int update = mDBNote.updateNote(mNote);
-                    Log.d("TAG", update + "AAAAAAAAAAA");
-                }
-                Intent mIntent = new Intent(InsertNoteActivity.this, MainActivity.class);
-                startActivity(mIntent);
+                insertData();
                 break;
+            case R.id.menu_new:
+                reloadNewNote();
+                break;
+
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void reloadNewNote() {
+        finish();
+        Intent mIntent = new Intent(this, InsertNoteActivity.class);
+        startActivity(mIntent);
+    }
+
+    private long convertDatetoMilisecond() {
+        long milisecond = 0;
+        if (!TextUtils.isEmpty(tv_calendar.getText().toString()) && !TextUtils.isEmpty(tv_clock.getText().toString())) {
+            SimpleDateFormat mDateFormat = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
+            Date mDateAlaram = new Date();
+            try {
+                timeAlaram = tv_calendar.getText().toString() + " " + tv_clock.getText().toString() + "-00"; //"2018-01-17 23-24-00"
+                timeAlaram = timeAlaram.replace(":", "-");
+                mDateAlaram = mDateFormat.parse(timeAlaram);
+                milisecond = mDateAlaram.getTime();
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+        return milisecond;
+    }
+
+    private void insertData() {
+        long milisecond = convertDatetoMilisecond();
+        Log.d("TAG", "milisecon" + milisecond);
+        Note mInsertNote = new Note();
+        mInsertNote.setTitle(et_title.getText().toString());
+        mInsertNote.setContent(et_content.getText().toString());
+        mInsertNote.setDate(date_now);
+        mInsertNote.setTime(time_now);
+        mInsertNote.setImage(url_image);
+        mInsertNote.setAlaramDate(tv_calendar.getText().toString());
+        mInsertNote.setAlaramTime(tv_clock.getText().toString());
+        if (isInsert) {
+            if (!TextUtils.isEmpty(mInsertNote.getTitle()) && !TextUtils.isEmpty(mInsertNote.getContent())) {
+                long insert = mDBNote.insertNote(mInsertNote);
+                Note noteNew = mDBNote.getNoteNew();
+                mSetupNotification.scheduleNotification(mSetupNotification.getNotification(noteNew), noteNew, milisecond);
+                Intent mIntent = new Intent(InsertNoteActivity.this, MainActivity.class);
+                startActivity(mIntent);
+            } else {
+                Toast.makeText(this, "Bạn cần nhập đủ thông tin", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            if (!TextUtils.isEmpty(mInsertNote.getTitle()) && !TextUtils.isEmpty(mInsertNote.getContent())) {
+                mInsertNote.setId(mNote.getId());
+                int update = mDBNote.updateNote(mInsertNote);
+                mSetupNotification.scheduleNotification(mSetupNotification.getNotification(mInsertNote), mInsertNote, milisecond);
+                Intent mIntent = new Intent(InsertNoteActivity.this, MainActivity.class);
+                startActivity(mIntent);
+            } else {
+                Toast.makeText(this, "Bạn cần nhập đủ thông tin", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     private void showDialogChooseColor() {
@@ -273,8 +364,9 @@ public class InsertNoteActivity extends AppCompatActivity implements View.OnClic
         mDialog.show();
         mDialog.getWindow().setAttributes(lWindowParams);
     }
+
     @SuppressLint("ResourceAsColor")
-    private void setBackGroundColor(){
+    private void setBackGroundColor() {
         String mKeyColor = getBackgroundColorSave();
         if (mKeyColor.equalsIgnoreCase("Main")) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -302,14 +394,16 @@ public class InsertNoteActivity extends AppCompatActivity implements View.OnClic
             }
         }
     }
-    private String getBackgroundColorSave(){
+
+    private String getBackgroundColorSave() {
         SharedPreferences mSharedPreferences = getSharedPreferences(Constants.KEY_PREFERENCES_COLOR, MODE_PRIVATE);
         return mSharedPreferences.getString(Constants.KEY_COLOR, "");
     }
+
     private void saveColorBackground(String color) {
         SharedPreferences mSharedPreferences = getSharedPreferences(Constants.KEY_PREFERENCES_COLOR, MODE_PRIVATE);
         SharedPreferences.Editor editor = mSharedPreferences.edit();
-        editor.putString(Constants.KEY_COLOR,color);
+        editor.putString(Constants.KEY_COLOR, color);
         editor.commit();
     }
 
@@ -364,7 +458,6 @@ public class InsertNoteActivity extends AppCompatActivity implements View.OnClic
                     url_image = Constants.BitmapToString(selectedImage);
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
-                    Toast.makeText(InsertNoteActivity.this, "Something went wrong", Toast.LENGTH_SHORT).show();
                 }
             } else if (requestCode == RESULT_LOAD_CAMERA) {
                 bmpImage = (Bitmap) data.getExtras().get("data");
@@ -372,7 +465,6 @@ public class InsertNoteActivity extends AppCompatActivity implements View.OnClic
                 url_image = Constants.BitmapToString(bmpImage);
             }
         } else {
-            Toast.makeText(InsertNoteActivity.this, "You haven't picked Image", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -391,9 +483,9 @@ public class InsertNoteActivity extends AppCompatActivity implements View.OnClic
                 item.setChecked(item.getItemData().isChecked());
             }
         } catch (NoSuchFieldException e) {
-            Log.e("TAG", "Unable to get shift mode field");
+
         } catch (IllegalAccessException e) {
-            Log.e("TAG", "Unable to change value of shift mode");
+
         }
     }
 
@@ -406,7 +498,7 @@ public class InsertNoteActivity extends AppCompatActivity implements View.OnClic
                 new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePicker datePicker, int year, int month, int day) {
-                        tv_calendar.setText(day + "/" + (month + 1) + "/" + year);
+                        tv_calendar.setText(year + "-" + (month + 1) + "-" + day);
                     }
                 }, year, month, dayOfMonth);
         mDatePicker.getDatePicker().setMinDate(System.currentTimeMillis());

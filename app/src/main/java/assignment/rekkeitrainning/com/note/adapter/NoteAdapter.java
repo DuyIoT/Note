@@ -24,7 +24,7 @@ import assignment.rekkeitrainning.com.note.model.Note;
  * Created by hoang on 7/17/2018.
  */
 
-public class NoteAdapter extends  RecyclerView.Adapter<NoteAdapter.NoteViewHolder>{
+public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder> {
     ItemClickListener mClickListener;
     Context mContext;
 
@@ -41,7 +41,7 @@ public class NoteAdapter extends  RecyclerView.Adapter<NoteAdapter.NoteViewHolde
     @Override
     public NoteViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(mContext).inflate(R.layout.item_rc_note, parent, false);
-        Animation mAnimation = AnimationUtils.loadAnimation(mContext,R.anim.anim_rc_note);
+        Animation mAnimation = AnimationUtils.loadAnimation(mContext, R.anim.anim_rc_note);
         view.startAnimation(mAnimation);
         return new NoteViewHolder(view);
     }
@@ -54,7 +54,7 @@ public class NoteAdapter extends  RecyclerView.Adapter<NoteAdapter.NoteViewHolde
         holder.tv_content.setText(mNote.getContent());
         holder.tv_date.setText(mNote.getDate());
         holder.tv_time.setText(mNote.getTime());
-        if (!TextUtils.isEmpty(mNote.getAlaramDate()) && !TextUtils.isEmpty(mNote.getAlaramTime())){
+        if (!TextUtils.isEmpty(mNote.getAlaramDate()) && !TextUtils.isEmpty(mNote.getAlaramTime())) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                 holder.img_clock.setBackground(mContext.getResources().getDrawable(R.drawable.clock, mContext.getResources().newTheme()));
             } else {
@@ -67,15 +67,16 @@ public class NoteAdapter extends  RecyclerView.Adapter<NoteAdapter.NoteViewHolde
 
     @Override
     public int getItemCount() {
-        return mListNote!= null? mListNote.size(): 0;
+        return mListNote != null ? mListNote.size() : 0;
     }
 
-    class NoteViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+    class NoteViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         TextView tv_title;
         TextView tv_content;
         ImageView img_clock;
         TextView tv_date;
         TextView tv_time;
+
         @SuppressLint("WrongViewCast")
         public NoteViewHolder(View itemView) {
             super(itemView);
@@ -89,15 +90,17 @@ public class NoteAdapter extends  RecyclerView.Adapter<NoteAdapter.NoteViewHolde
 
         @Override
         public void onClick(View v) {
-            if (mClickListener != null){
+            if (mClickListener != null) {
                 mClickListener.onItemClick(v, getAdapterPosition());
             }
         }
     }
-    public void setOnItemClickListener(ItemClickListener mClickListener){
+
+    public void setOnItemClickListener(ItemClickListener mClickListener) {
         this.mClickListener = mClickListener;
     }
-    public interface ItemClickListener{
+
+    public interface ItemClickListener {
         public void onItemClick(View view, int position);
     }
 }

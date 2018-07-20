@@ -6,4 +6,6 @@
     <string name="takephoto">Take Photo</string>
     <string name="choosephoto">Choose Photo</string>
     <string name="choosebackground">Choose Color Background</string>
+    <string name="facebook_app_id">312692655946548</string>
+    <string name="facebook_login_protocol">fb312692655946548</string>
 </resources>

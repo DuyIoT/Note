@@ -9,6 +9,7 @@ import assignment.rekkeitrainning.com.note.R;
 
 public class FlashScreenActivity extends AppCompatActivity {
     Handler mHandler;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

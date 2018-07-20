@@ -21,6 +21,10 @@
             android:orderInCategory="200"
             app:showAsAction="always"
             android:title="Select" />
+    <item
+        android:id="@+id/menu_new"
+        android:orderInCategory="200"
+        android:title="New Note" />
 
 
     </menu>

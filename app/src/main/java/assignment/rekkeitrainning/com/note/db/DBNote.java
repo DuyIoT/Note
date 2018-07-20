@@ -40,6 +40,7 @@ public class DBNote extends SQLiteOpenHelper {
                     + COLUMN_ALARAMDATE + " DATETIME DEFAULT CURRENT_DATE, "
                     + COLUMN_ALARAMTIME + " DATETIME DEFAULT CURRENT_TIME"
                     + ")";
+
     public DBNote(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -53,6 +54,7 @@ public class DBNote extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
     }
+
     public long insertNote(Note note) {
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -68,6 +70,7 @@ public class DBNote extends SQLiteOpenHelper {
         db.close();
         return id;
     }
+
     public List<Note> getAllNotes() {
         List<Note> notes = new ArrayList<>();
         String selectQuery = "SELECT  * FROM " + TABLE_NAME;
@@ -91,6 +94,31 @@ public class DBNote extends SQLiteOpenHelper {
         db.close();
         return notes;
     }
+
+    public Note getNoteNew() {
+        List<Note> notes = new ArrayList<>();
+        String selectQuery = "SELECT  * FROM " + TABLE_NAME + " ORDER BY " + COLUMN_ID + " DESC LIMIT 0,1";
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+        Note note = null;
+        if (cursor.moveToFirst()) {
+            do {
+                note = new Note();
+                note.setId(cursor.getInt(cursor.getColumnIndex(COLUMN_ID)));
+                note.setTitle(cursor.getString(cursor.getColumnIndex(COLUMN_TITLE)));
+                note.setContent(cursor.getString(cursor.getColumnIndex(COLUMN_CONTENT)));
+                note.setImage(cursor.getString(cursor.getColumnIndex(COLUMN_IMAGE)));
+                note.setDate(cursor.getString(cursor.getColumnIndex(COLUMN_DATE)));
+                note.setTime(cursor.getString(cursor.getColumnIndex(COLUMN_TIME)));
+                note.setAlaramDate(cursor.getString(cursor.getColumnIndex(COLUMN_ALARAMDATE)));
+                note.setAlaramTime(cursor.getString(cursor.getColumnIndex(COLUMN_ALARAMTIME)));
+            } while (cursor.moveToNext());
+        }
+        db.close();
+        return note;
+    }
+
     public int getNotesCount() {
         String countQuery = "SELECT  * FROM " + TABLE_NAME;
         SQLiteDatabase db = this.getReadableDatabase();
@@ -100,6 +128,7 @@ public class DBNote extends SQLiteOpenHelper {
         cursor.close();
         return count;
     }
+
     public int updateNote(Note note) {
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -115,6 +144,7 @@ public class DBNote extends SQLiteOpenHelper {
         return db.update(TABLE_NAME, values, COLUMN_ID + " = ?",
                 new String[]{String.valueOf(note.getId())});
     }
+
     public void deleteNote(Note note) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_NAME, COLUMN_ID + " = ?",

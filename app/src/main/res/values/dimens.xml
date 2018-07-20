@@ -13,4 +13,6 @@
     <dimen name="dm50dp">50dp</dimen>
     <dimen name="dm25sp">25sp</dimen>
     <dimen name="dm80dp">80dp</dimen>
+    <dimen name="dm170dp">170dp</dimen>
+    <dimen name="dm200dp">200dp</dimen>
 </resources>

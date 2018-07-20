@@ -25,6 +25,7 @@ public class Note implements Parcelable {
     String time;
     String alaramDate;
     String alaramTime;
+
     public String getImage() {
         return image;
     }

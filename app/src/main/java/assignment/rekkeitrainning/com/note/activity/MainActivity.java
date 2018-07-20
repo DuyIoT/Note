@@ -33,10 +33,11 @@ import assignment.rekkeitrainning.com.note.model.Note;
 public class MainActivity extends AppCompatActivity implements NoteAdapter.ItemClickListener {
     BottomNavigationView btNavigation;
     Toolbar mToolbar;
-    List<Note> mListNote =  null;
+    List<Note> mListNote = null;
     DBNote mDbNote;
     NoteAdapter mNoteAdapter;
     RecyclerView rc_note;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,6 +50,7 @@ public class MainActivity extends AppCompatActivity implements NoteAdapter.ItemC
     private void initListener() {
         btNavigation.setOnNavigationItemSelectedListener(this::onNavigationItemSelected);
     }
+
     private boolean onNavigationItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_add:
@@ -112,12 +114,13 @@ public class MainActivity extends AppCompatActivity implements NoteAdapter.ItemC
         mNote.setAlaramDate(mListNote.get(position).getAlaramDate());
         mNote.setImage(mListNote.get(position).getImage());
         Bundle mBundle = new Bundle();
-        mBundle.putParcelable(Constants.KEY_OBJECT_NOTE,mNote);
+        mBundle.putParcelable(Constants.KEY_OBJECT_NOTE, mNote);
         Intent mIntent = new Intent(MainActivity.this, InsertNoteActivity.class);
         mIntent.putExtras(mBundle);
         overridePendingTransition(R.anim.anim_fadein, R.anim.anim_fadeout);
         startActivity(mIntent);
     }
+
     private void checkAndRequestPermissions() {
         String[] permissions = new String[]{
                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
