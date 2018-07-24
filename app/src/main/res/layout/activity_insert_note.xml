@@ -12,10 +12,12 @@
         android:layout_alignParentTop="true"
         android:background="@color/backgroundBar">
         <ImageView
+            android:id="@+id/imgToolbar"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:src="@drawable/notepad"/>
         <TextView
+            android:id="@+id/tvToolbar"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:text="@string/app_name"

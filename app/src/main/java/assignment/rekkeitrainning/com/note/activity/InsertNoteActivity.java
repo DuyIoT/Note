@@ -26,7 +26,9 @@ import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
@@ -95,6 +97,8 @@ public class InsertNoteActivity extends AppCompatActivity implements View.OnClic
     MenuItem mMenuNewNote;
     String timeAlaram = "";
     SetupNotification mSetupNotification;
+    ImageView img_toolbar;
+    TextView tv_toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -143,6 +147,8 @@ public class InsertNoteActivity extends AppCompatActivity implements View.OnClic
         rlt_insert = findViewById(R.id.rltInsert);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         mSetupNotification = new SetupNotification(this);
+        img_toolbar = findViewById(R.id.imgToolbar);
+        tv_toolbar = findViewById(R.id.tvToolbar);
     }
 
     private void getTimeNow() {
@@ -156,6 +162,30 @@ public class InsertNoteActivity extends AppCompatActivity implements View.OnClic
         btNavigation.setOnNavigationItemSelectedListener(this::onNavigationItemSelected);
         ibtn_calendar.setOnClickListener(this);
         ibtn_clock.setOnClickListener(this);
+        et_title.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (s.length() != 0) {
+                    getSupportActionBar().setTitle(et_title.getText().toString());
+                    img_toolbar.setVisibility(View.GONE);
+                    tv_toolbar.setVisibility(View.GONE);
+                } else {
+                    getSupportActionBar().setTitle("");
+                    img_toolbar.setVisibility(View.VISIBLE);
+                    tv_toolbar.setVisibility(View.VISIBLE);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
     }
 
     private boolean onNavigationItemSelected(MenuItem item) {
